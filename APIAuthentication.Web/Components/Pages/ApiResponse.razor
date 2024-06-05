@@ -1,0 +1,27 @@
+﻿@page "/api-response"
+
+@inject ApiClient ApiClient
+
+<PageTitle>Api Response</PageTitle>
+
+<h1>Api Response</h1>
+
+<p>This component demonstrates showing data loaded from a backend API service.</p>
+
+@if (response == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <p>@response</p>
+}
+
+@code {
+    string? response;
+
+    protected override async Task OnInitializedAsync()
+    {
+        response = await ApiClient.GetString();
+    }
+}

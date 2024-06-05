@@ -1,0 +1,21 @@
+﻿@page "/404"
+@inject NavigationManager NavigationManager
+
+<PageTitle>404</PageTitle>
+
+@* Todo: adicionar alerta aqui com o template da lar *@
+<div class="alert alert-warning" role="alert">
+    Página não encontrada
+</div>
+
+<br />
+
+@* Todo: adicionar button template lar *@
+<button class="btn btn-primary" @onclick=BackToHome>Ir para Home</button>
+
+@code {
+    private void BackToHome()
+    {
+        NavigationManager.NavigateTo(NavigationManager.BaseUri);
+    }
+}
