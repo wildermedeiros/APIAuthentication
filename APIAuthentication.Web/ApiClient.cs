@@ -14,6 +14,7 @@ public class ApiClient
         Debug.WriteLine("--------------------");
 
         client = new FlurlClient("https://localhost:7573")
+            // todo olhar implementação para testar as requisições
             .WithOAuthBearerToken(TokenProvider.AccessToken)
             .WithHeader("Content-Type", "application/json")
             .WithSettings(x => x.JsonSerializer = new Flurl.Http.Newtonsoft.NewtonsoftJsonSerializer());
