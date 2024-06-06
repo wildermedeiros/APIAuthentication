@@ -16,6 +16,7 @@ builder.Services.AddOidcAuthentication(builder);
 builder.Services.AddAuthorization();
 
 builder.Services.AddScoped<ApiClient>();
+builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 var pathBase = builder.Configuration.GetValue<string>("PathBase");

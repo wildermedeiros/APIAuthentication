@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Mvc.TagHelpers.Cache;
 using System.Diagnostics;
 using System.Security.Claims;
 using System.Text.Json;
@@ -28,7 +27,7 @@ public class CustomClaimsTransformation : IClaimsTransformation
 
         using var resourceAccess = JsonDocument.Parse(resourceAccessValues);
         bool containsResourceElement = resourceAccess.RootElement.TryGetProperty(resource, out var resourceValues);
-        
+
         if (!containsResourceElement)
             throw new InvalidOperationException($"Verify if the resource_access has a {resource} property");
 
@@ -45,13 +44,14 @@ public class CustomClaimsTransformation : IClaimsTransformation
             }
         }
 
-        var transformedPrincipal = new ClaimsPrincipal(claimsIdentity);
-
+        // todo remover
         Debug.WriteLine("---------------------");
         foreach (var claim in claimsIdentity.Claims)
         {
             Debug.WriteLine($"{claim.Type} : {claim.Value}");
         }
+
+        var transformedPrincipal = new ClaimsPrincipal(claimsIdentity);
         return Task.FromResult(transformedPrincipal);
     }
 

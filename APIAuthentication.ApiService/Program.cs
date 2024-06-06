@@ -14,9 +14,11 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddApiOidcAuthentication(builder);
-builder.Services.AddAuthorization(configure =>
-    configure.AddPolicy("admin", policy =>
-        policy.RequireRole("admin")));
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("admin", policy =>
+        policy.RequireRole("admin"))
+    .AddPolicy("seller", policy =>
+        policy.RequireRole("seller"));
 
 builder.Services.AddTransient<IClaimsTransformation, CustomClaimsTransformation>();
 
@@ -28,19 +30,17 @@ app.UsePathBase(pathBase);
 // Configure the HTTP request pipeline.
 app.UseExceptionHandler();
 
-
-app.MapGet("/foo", () =>
-{
-    return "olá";
-}).RequireAuthorization("admin");
-
 app.MapDefaultEndpoints();
 
 app.UseSwagger();
 app.UseSwaggerUI();
 
-// todo testar sem esse middleware
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapGet("/foo", () =>
+{
+    return "olá";
+}).RequireAuthorization("admin");
 
 app.Run();

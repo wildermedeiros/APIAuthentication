@@ -1,7 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Diagnostics;
-using System.Security.Claims;
+﻿using Microsoft.IdentityModel.Tokens;
 
 namespace ApiAuthentication.ApiService.Authentication;
 
@@ -20,8 +17,6 @@ public static class ApiOidcAuthentication
             jwtOptions.Audience = "account";
             jwtOptions.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
             jwtOptions.SaveToken = true;
-            // how to access the authentication prop?
-            // via httpContext
 
             jwtOptions.TokenValidationParameters = new TokenValidationParameters
             {
@@ -31,36 +26,35 @@ public static class ApiOidcAuthentication
                 ValidAudience = "account",
                 ValidateLifetime = true
             };
-
         });
 
         return services;
     }
 }
 
-            //jwtOptions.Events = new JwtBearerEvents
-            //{
-            //    //OnMessageReceived = context =>
-            //    //{
-            //    //    var accessToken = context.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-            //    //    Debug.WriteLine($"Access Token: {accessToken}");
+//jwtOptions.Events = new JwtBearerEvents
+//{
+//    //OnMessageReceived = context =>
+//    //{
+//    //    var accessToken = context.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+//    //    Debug.WriteLine($"Access Token: {accessToken}");
 
-            //    //    // Faça algo com o token de acesso aqui, se necessário
-            //    //    return Task.CompletedTask;
-            //    //},
-            //    OnTokenValidated = context =>
-            //    {
-            //        var claimsIdentity = context.Principal!.Identity as ClaimsIdentity;
-            //        var userClaims = claimsIdentity?.Claims;
+//    //    // Faça algo com o token de acesso aqui, se necessário
+//    //    return Task.CompletedTask;
+//    //},
+//    OnTokenValidated = context =>
+//    {
+//        var claimsIdentity = context.Principal!.Identity as ClaimsIdentity;
+//        var userClaims = claimsIdentity?.Claims;
 
-            //        foreach (var claim in userClaims!)
-            //        {
-            //            Debug.WriteLine($"{claim.Type} :{claim.Value}");
-            //        }
-            //        return Task.CompletedTask;
-            //    }
-            //};
+//        foreach (var claim in userClaims!)
+//        {
+//            Debug.WriteLine($"{claim.Type} :{claim.Value}");
+//        }
+//        return Task.CompletedTask;
+//    }
+//};
 
-// como acessar o access token por aqui?
-    // não é necessário, no claims identity já tem as roles, mas poderia acessar pelo contexto
-
+// como acessar o access token por aqui (authentication prop)?
+// não é necessário, no claims identity já tem as roles, mas poderia acessar pelo contexto ou header
+// via httpContext.getoken("access_token");
