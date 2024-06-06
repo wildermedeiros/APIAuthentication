@@ -172,8 +172,16 @@ public static class OidcAuthentication
 
     private static void AddRoleClaimsToIdentity(TokenValidatedContext context, string resource)
     {
+        // todo testar se no claims identity eu já tenho as resoucres, ao invez de decodificar o token
         var claimsIdentity = context.Principal!.Identity as ClaimsIdentity ??
             throw new InvalidOperationException("claimsIdentity is null or was not been found, check if the context is available");
+
+        var userClaims = claimsIdentity?.Claims;
+
+        foreach (var claim in userClaims!)
+        {
+            Debug.WriteLine($"{claim.Type} :{claim.Value}");
+        }
 
         var accessToken = context.TokenEndpointResponse!.AccessToken;
         TokenProvider.AccessToken = accessToken;
