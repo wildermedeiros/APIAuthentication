@@ -1,19 +1,28 @@
-﻿@page "/403"
+﻿@page "/403/{Message?}"
 @inject NavigationManager NavigationManager
 
 <PageTitle>403</PageTitle>
 
-@* Todo: adicionar alerta aqui com o template da lar *@
 <div class="alert alert-warning" role="alert">
-    Você não tem autorização para ver esta página. Se você acredita que isso é um erro, por favor, entre em contato com o suporte.
+    @Message
 </div>
 
 <br />
 
-@* Todo: adicionar button template lar *@
 <button class="btn btn-primary" @onclick=BackToHome>Ir para Home</button>
 
 @code {
+    [Parameter]
+    public string Message { get; set; } = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        if (string.IsNullOrWhiteSpace(Message))
+            Message = "Você não tem autorização para ver esta página. Se você acredita que isso é um erro, por favor, entre em contato com o suporte.";
+    }
+
     private void BackToHome()
     {
         NavigationManager.NavigateTo(NavigationManager.BaseUri);

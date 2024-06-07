@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authentication;
-using System.Diagnostics;
 using System.Security.Claims;
 using System.Text.Json;
 
@@ -42,13 +41,6 @@ public class CustomClaimsTransformation : IClaimsTransformation
             {
                 claimsIdentity.AddClaim(new Claim(claimsIdentity.RoleClaimType, roleValue));
             }
-        }
-
-        // todo remover
-        Debug.WriteLine("---------------------");
-        foreach (var claim in claimsIdentity.Claims)
-        {
-            Debug.WriteLine($"{claim.Type} : {claim.Value}");
         }
 
         var transformedPrincipal = new ClaimsPrincipal(claimsIdentity);

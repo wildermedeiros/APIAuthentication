@@ -1,6 +1,7 @@
 ﻿@page "/api-response"
 
 @inject ApiClient ApiClient
+@inject NavigationManager Navigation
 
 <PageTitle>Api Response</PageTitle>
 
@@ -22,6 +23,8 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        Navigation.NavigateTo(Navigation.Uri, forceLoad: true);
+
         response = await ApiClient.GetString();
     }
 }

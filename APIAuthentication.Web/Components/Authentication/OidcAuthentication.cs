@@ -1,17 +1,20 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Mvc.TagHelpers.Cache;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text.Json;
 
-namespace APIAuthentication.Web.Components.Authentication
-    ;
+namespace APIAuthentication.Web.Components.Authentication;
+
 public static class OidcAuthentication
 {
     public static IServiceCollection AddOidcAuthentication(this IServiceCollection services, IHostApplicationBuilder builder)
     {
+        // todo create a enum for that
         const string microsoftOidc = "MicrosoftOidc";
         const int https = 443;
 
@@ -33,10 +36,10 @@ public static class OidcAuthentication
             //ForceHttpsOnRedirectToLogin(options, https);
             //ForceHttpsOnRedirectToLogOut(options, https);
             //ForceHttpsOnLogOutCallback(options, https);
-            ConfigureTokenValidatedEvent(options, resource);
             HandleRemoteFailure(options, pathBase);
         });
 
+        services.ConfigureCookieOidcRefresh(CookieAuthenticationDefaults.AuthenticationScheme, microsoftOidc);
         services.AddCascadingAuthenticationState();
 
         return services;
@@ -46,27 +49,35 @@ public static class OidcAuthentication
     {
         options.Events.OnRemoteFailure = context =>
         {
+            // todo fazer log disso
             Debug.WriteLine($"OnRemoteFailure\n" +
-                $"Message:{context.Failure?.Message}\n" +
+                $"Message: {context.Failure?.Message}\n" +
                 $"Exception: {context.Failure?.ToString()}\n" +
                 $"Source app: {context.Failure?.Source}\n" +
                 $"InnerException: {context.Failure?.InnerException}\n" +
                 $"StackTrace: {context.Failure?.StackTrace}");
+
+            if ((bool)context.Failure?.Message.Contains("Offline tokens", StringComparison.OrdinalIgnoreCase)!)
+            {
+                // todo estudar exclusão dos cookies e o momento
+                //context.Response.Cookies.Delete(".AspNetCore.Cookies");
+                // deslogar
+                //await context.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                //await context.HttpContext.SignOutAsync("MicrosoftOidc", new AuthenticationProperties { RedirectUri = pathBase });
+                // redirecionar
+
+                var message = Uri.EscapeDataString("Usuário ou cliente sem permissão para acesso offline");
+                context.Response.Redirect($"{pathBase}/403/{message}");
+
+                context.HandleResponse();
+                return Task.CompletedTask;
+            }
 
             if (context.Request.Path.Equals($"{pathBase}/signin-oidc"))
             {
                 context.HandleResponse();
                 context.Response.Redirect(pathBase);
             }
-            return Task.CompletedTask;
-        };
-    }
-
-    private static void ConfigureTokenValidatedEvent(OpenIdConnectOptions options, string? resource)
-    {
-        options.Events.OnTokenValidated = context =>
-        {
-            AddRoleClaimsToIdentity(context, resource!);
             return Task.CompletedTask;
         };
     }
@@ -159,7 +170,6 @@ public static class OidcAuthentication
         options.Authority = $"{authServerUrl}realms/{realm}";
         options.ClientId = resource;
         options.ResponseType = OpenIdConnectResponseType.Code;
-        options.SaveTokens = true;
         options.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
         options.Scope.Add(OpenIdConnectScope.OpenIdProfile);
         options.MapInboundClaims = false;
@@ -168,56 +178,5 @@ public static class OidcAuthentication
         options.RemoteSignOutPath = new PathString($"{pathBase}/signout-oidc");
         options.TokenValidationParameters.NameClaimType = JwtRegisteredClaimNames.Name;
         options.TokenValidationParameters.RoleClaimType = ClaimTypes.Role;
-    }
-
-    private static void AddRoleClaimsToIdentity(TokenValidatedContext context, string resource)
-    {
-        var claimsIdentity = context.Principal!.Identity as ClaimsIdentity ??
-            throw new InvalidOperationException("claimsIdentity is null or was not been found, check if the context is available");
-
-        var userClaims = claimsIdentity?.Claims;
-
-        foreach (var claim in userClaims!)
-        {
-            Debug.WriteLine($"{claim.Type} :{claim.Value}");
-        }
-
-        var accessToken = context.TokenEndpointResponse!.AccessToken;
-        TokenProvider.AccessToken = accessToken;
-        Debug.WriteLine("OIDC--------------------");
-        Debug.WriteLine($"{TokenProvider.AccessToken}");
-        Debug.WriteLine("--------------------");
-        var jwtHandler = new JwtSecurityTokenHandler();
-        var decodedToken = jwtHandler.ReadJwtToken(accessToken) ??
-            throw new InvalidOperationException("The decoded AccessToken is null, please verify how the AccessToken is being extracted and used or check if the authentication has been established successfully");
-
-        var resourceAccessValues = decodedToken.Claims.FirstOrDefault(c => c.Type == $"resource_access")?.Value;
-
-        if (string.IsNullOrEmpty(resourceAccessValues)) return;
-
-        using var resourceAccess = JsonDocument.Parse(resourceAccessValues);
-        bool containsResourceElement = resourceAccess.RootElement.TryGetProperty(resource, out var resourceValues);
-        if (!containsResourceElement)
-            throw new InvalidOperationException($"Verify if the resource_access has a {resource} property");
-
-        var rolesValues = resourceValues.GetProperty("roles");
-
-        foreach (var role in rolesValues.EnumerateArray())
-        {
-            var roleValue = role.GetString();
-            var matchingClaim = GetMatchingRoleClaim(claimsIdentity, roleValue!);
-
-            if (matchingClaim is null && !string.IsNullOrEmpty(roleValue))
-            {
-                claimsIdentity.AddClaim(new Claim(claimsIdentity.RoleClaimType, roleValue));
-            }
-        }
-    }
-
-    private static Claim GetMatchingRoleClaim(ClaimsIdentity claimsIdentity, string roleValue)
-    {
-        return claimsIdentity.Claims.FirstOrDefault(claim =>
-            claim.Type.Equals(claimsIdentity.RoleClaimType, StringComparison.InvariantCultureIgnoreCase) &&
-            claim.Value.Equals(roleValue, StringComparison.InvariantCultureIgnoreCase))!;
     }
 }
