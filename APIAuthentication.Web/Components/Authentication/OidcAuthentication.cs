@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using Flurl.Http;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System.Diagnostics;
@@ -11,7 +13,6 @@ public static class OidcAuthentication
 {
     public static IServiceCollection AddOidcAuthentication(this IServiceCollection services, IHostApplicationBuilder builder)
     {
-        // todo create a enum for that
         const int https = 443;
 
         var configuration = builder.Configuration;
@@ -28,7 +29,7 @@ public static class OidcAuthentication
         })
         .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
         {
-            HandleAccessDeniedRedirect(options, pathBase);
+            options.AccessDeniedPath = $"{pathBase}/403";
         })
         .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, options =>
         {
@@ -63,32 +64,49 @@ public static class OidcAuthentication
 
     private static void HandleRemoteFailure(OpenIdConnectOptions options, string pathBase)
     {
-        options.Events.OnRemoteFailure = context =>
+        options.Events.OnRemoteFailure = async context =>
         {
-            // todo fazer log disso
-            Debug.WriteLine($"OnRemoteFailure\n" +
+            Debug.WriteLine(
+                $"------------------\n" +
+                $"Logging: \n" +
                 $"Message: {context.Failure?.Message}\n" +
                 $"Exception: {context.Failure?.ToString()}\n" +
                 $"Source app: {context.Failure?.Source}\n" +
                 $"InnerException: {context.Failure?.InnerException}\n" +
-                $"StackTrace: {context.Failure?.StackTrace}");
+                $"StackTrace: {context.Failure?.StackTrace}" +
+                $"------------------"
+            );
 
             if ((bool)context.Failure?.Message.Contains("Offline tokens", StringComparison.OrdinalIgnoreCase)!)
             {
-                // todo
-                // estudar exclusão dos cookies e o momento
+                //todo
+                //estudar exclusão dos cookies e o momento
                 //context.Response.Cookies.Delete(".AspNetCore.Cookies");
-                // deslogar com ou sem post
                 // criar pagina para erro 405
-                // await context.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-                // await context.HttpContext.SignOutAsync("MicrosoftOidc", new AuthenticationProperties { RedirectUri = pathBase });
-                // redirecionar
+                await context.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                await context.HttpContext.SignOutAsync(OpenIdConnectDefaults.AuthenticationScheme, context.HttpContext.AuthenticateAsync().Result?.Properties);
 
-                var message = Uri.EscapeDataString("Usuário ou cliente sem permissão para acesso offline");
-                context.Response.Redirect($"{pathBase}/403/{message}");
+                //try
+                //{
+                //    var postResponse = await "https://localhost:7100/api-auth/authentication/logout".PostAsync();
+                //    var location = postResponse.Headers.FirstOrDefault("Location");
+                //    var getResponse = await location.PostAsync();
+                //    var message = Uri.EscapeDataString("Usuário ou cliente sem permissão para acesso offline");
+                //    context.Response.Redirect($"{pathBase}/403/{message}");
+                //}
+                //catch (FlurlHttpTimeoutException ex)
+                //{
+                //}
+                //catch (FlurlHttpException ex)
+                //{
+                //}
+                //catch (Exception)
+                //{
+                //    throw;
+                //}
 
                 context.HandleResponse();
-                return Task.CompletedTask;
+                return;
             }
 
             if (context.Request.Path.Equals($"{pathBase}/signin-oidc"))
@@ -96,16 +114,7 @@ public static class OidcAuthentication
                 context.HandleResponse();
                 context.Response.Redirect(pathBase);
             }
-            return Task.CompletedTask;
-        };
-    }
-
-    private static void HandleAccessDeniedRedirect(CookieAuthenticationOptions options, string pathBase)
-    {
-        options.Events.OnRedirectToAccessDenied = context =>
-        {
-            context.Response.Redirect($"{pathBase}/403");
-            return Task.CompletedTask;
+            return;
         };
     }
 
@@ -123,10 +132,6 @@ public static class OidcAuthentication
                 Port = request.Host.Port ?? httpsPort,
                 Path = context.Options.CallbackPath.ToString(),
             };
-
-            Debug.WriteLine("OIDC AUTH----------------------");
-            Debug.WriteLine($"Logging OnRedirectToIdentityProvider:\n Schema: {newRedirectUri.Scheme}\n Host: {newRedirectUri.Host}\n Port: {newRedirectUri.Port}\n Path: {newRedirectUri.Path}\n URI: {newRedirectUri}");
-            Debug.WriteLine("----------------------");
 
             context.ProtocolMessage.RedirectUri = newRedirectUri.ToString();
             context.ProtocolMessage.IssuerAddress = context.ProtocolMessage.IssuerAddress.Replace("http://", "https://");
@@ -150,10 +155,6 @@ public static class OidcAuthentication
                 Path = context.Options.SignedOutCallbackPath.ToString(),
             };
 
-            Debug.WriteLine("----------------------");
-            Debug.WriteLine($"Logging OnRedirectToIdentityProviderForSignOut:\n Schema: {newRedirectUri.Scheme}\n Host: {newRedirectUri.Host}\n Port: {newRedirectUri.Port}\n Path: {newRedirectUri.Path}\n URI: {newRedirectUri}");
-            Debug.WriteLine("----------------------");
-
             context.ProtocolMessage.PostLogoutRedirectUri = newRedirectUri.ToString();
             context.ProtocolMessage.IssuerAddress = context.ProtocolMessage.IssuerAddress.Replace("http://", "https://");
 
@@ -176,12 +177,7 @@ public static class OidcAuthentication
                 Path = context.Options.SignedOutCallbackPath.ToString(),
             };
 
-            Debug.WriteLine("----------------------");
-            Debug.WriteLine($"Logging OnSignedOutCallbackRedirect:\n Schema: {newRedirectUri.Scheme}\n Host: {newRedirectUri.Host}\n Port: {newRedirectUri.Port}\n Path: {newRedirectUri.Path}\n URI: {newRedirectUri}");
-            Debug.WriteLine("----------------------");
-
             context.Response.Redirect(newRedirectUri.ToString());
-
             context.Options.Authority = context.Options.Authority?.Replace("http://", "https://");
 
             return Task.CompletedTask;

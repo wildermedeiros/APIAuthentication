@@ -2,7 +2,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.34929.205
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "APIAuthentication.AppHost", "APIAuthentication.AppHost\APIAuthentication.AppHost.csproj", "{D07B6F44-63BD-40EE-9002-640323A77310}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "APIAuthentication.AppHost", "APIAuthentication.AppHost\APIAuthentication.AppHost.csproj", "{D07B6F44-63BD-40EE-9002-640323A77310}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "APIAuthentication.ServiceDefaults", "APIAuthentication.ServiceDefaults\APIAuthentication.ServiceDefaults.csproj", "{DBE2DFBA-1BCD-4BC0-8EED-0FAFA9E0845D}"
 EndProject
