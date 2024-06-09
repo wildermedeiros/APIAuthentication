@@ -15,7 +15,6 @@ public static class OidcAuthentication
     public static IServiceCollection AddOidcAuthentication(this IServiceCollection services, IHostApplicationBuilder builder)
     {
         // todo create a enum for that
-        const string microsoftOidc = "MicrosoftOidc";
         const int https = 443;
 
         var configuration = builder.Configuration;
@@ -25,21 +24,25 @@ public static class OidcAuthentication
         var resource = keycloakConfig["resource"];
         var pathBase = configuration.GetValue<string>("PathBase") ?? throw new InvalidOperationException("Pathbase not configured!");
 
-        services.AddAuthentication(microsoftOidc)
+        services.AddAuthentication(options =>
+        {
+            options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
+        })
         .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
         {
             HandleAccessDeniedRedirect(options, pathBase);
         })
-        .AddOpenIdConnect(microsoftOidc, options =>
+        .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, options =>
         {
             ConfigureIdentityProvider(builder, options, authServerUrl, realm, resource, pathBase);
-            //ForceHttpsOnRedirectToLogin(options, https);
-            //ForceHttpsOnRedirectToLogOut(options, https);
-            //ForceHttpsOnLogOutCallback(options, https);
+            ForceHttpsOnRedirectToLogin(options, https);
+            ForceHttpsOnRedirectToLogOut(options, https);
+            ForceHttpsOnLogOutCallback(options, https);
             HandleRemoteFailure(options, pathBase);
         });
 
-        services.ConfigureCookieOidcRefresh(CookieAuthenticationDefaults.AuthenticationScheme, microsoftOidc);
+        services.ConfigureCookieOidcRefresh(CookieAuthenticationDefaults.AuthenticationScheme, OpenIdConnectDefaults.AuthenticationScheme);
         services.AddCascadingAuthenticationState();
 
         return services;
@@ -95,6 +98,8 @@ public static class OidcAuthentication
     {
         options.Events.OnRedirectToIdentityProvider = context =>
         {
+            if (context.Request.IsHttps) { return Task.CompletedTask; }
+
             var request = context.Request;
             var newRedirectUri = new UriBuilder()
             {
@@ -119,6 +124,8 @@ public static class OidcAuthentication
     {
         options.Events.OnRedirectToIdentityProviderForSignOut = context =>
         {
+            if (context.Request.IsHttps) { return Task.CompletedTask; }
+
             var request = context.Request;
             var newRedirectUri = new UriBuilder()
             {
@@ -143,6 +150,8 @@ public static class OidcAuthentication
     {
         options.Events.OnSignedOutCallbackRedirect = context =>
         {
+            if (context.Request.IsHttps) { return Task.CompletedTask; }
+
             var request = context.Request;
             var newRedirectUri = new UriBuilder()
             {
@@ -171,12 +180,12 @@ public static class OidcAuthentication
         options.ClientId = resource;
         options.ResponseType = OpenIdConnectResponseType.Code;
         options.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
-        options.Scope.Add(OpenIdConnectScope.OpenIdProfile);
-        options.MapInboundClaims = false;
         options.CallbackPath = new PathString($"{pathBase}/signin-oidc");
         options.SignedOutCallbackPath = new PathString($"{pathBase}/signout-callback-oidc");
         options.RemoteSignOutPath = new PathString($"{pathBase}/signout-oidc");
+        options.MapInboundClaims = false;
         options.TokenValidationParameters.NameClaimType = JwtRegisteredClaimNames.Name;
         options.TokenValidationParameters.RoleClaimType = ClaimTypes.Role;
+        options.Scope.Add(OpenIdConnectScope.OpenIdProfile);
     }
 }

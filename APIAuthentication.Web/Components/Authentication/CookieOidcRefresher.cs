@@ -112,6 +112,9 @@ internal sealed class CookieOidcRefresher(IOptionsMonitor<OpenIdConnectOptions> 
             new() { Name = "token_type", Value = message.TokenType },
             new() { Name = "expires_at", Value = expiresAt.ToString("o", CultureInfo.InvariantCulture) },
         ]);
+
+        // todo
+        // log user
     }
 
     private static void AddRoleClaimsToIdentity(ClaimsIdentity claimsIdentity, string accessToken, string resource)
