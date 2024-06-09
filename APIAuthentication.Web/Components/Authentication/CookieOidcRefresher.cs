@@ -92,15 +92,6 @@ internal sealed class CookieOidcRefresher(IOptionsMonitor<OpenIdConnectOptions> 
 
         validateContext.ShouldRenew = true;
         validateContext.ReplacePrincipal(new ClaimsPrincipal(validationResult.ClaimsIdentity));
-
-        Debug.WriteLine("REFRESHER---------------------");
-        foreach (var claim in validationResult.ClaimsIdentity.Claims)
-        {
-            Debug.WriteLine($"{claim.Type}: {claim.Value}");
-        }
-        Debug.WriteLine($"Resource: {oidcOptions.ClientId}");
-        Debug.WriteLine($"Token: {message.AccessToken}");
-
         AddRoleClaimsToIdentity(validationResult.ClaimsIdentity, message.AccessToken, oidcOptions.ClientId!);
 
         var expiresIn = int.Parse(message.ExpiresIn, NumberStyles.Integer, CultureInfo.InvariantCulture);

@@ -8,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.AddServiceDefaults();
 builder.AddRedisOutputCache("cache");
 
+
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
@@ -17,6 +18,7 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddScoped<ApiClient>();
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddControllers();
 
 var app = builder.Build();
 var pathBase = builder.Configuration.GetValue<string>("PathBase");

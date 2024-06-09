@@ -23,8 +23,6 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        Navigation.NavigateTo(Navigation.Uri, forceLoad: true);
-
         response = await ApiClient.GetString();
     }
 }

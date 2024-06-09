@@ -1,12 +1,9 @@
-﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Microsoft.AspNetCore.Mvc.TagHelpers.Cache;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text.Json;
 
 namespace APIAuthentication.Web.Components.Authentication;
 
@@ -48,6 +45,22 @@ public static class OidcAuthentication
         return services;
     }
 
+    private static void ConfigureIdentityProvider(IHostApplicationBuilder builder, OpenIdConnectOptions options, string? authServerUrl, string? realm, string? resource, string pathBase)
+    {
+        options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+        options.Authority = $"{authServerUrl}realms/{realm}";
+        options.ClientId = resource;
+        options.ResponseType = OpenIdConnectResponseType.Code;
+        options.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
+        options.CallbackPath = new PathString($"{pathBase}/signin-oidc");
+        options.SignedOutCallbackPath = new PathString($"{pathBase}/signout-callback-oidc");
+        options.RemoteSignOutPath = new PathString($"{pathBase}/signout-oidc");
+        options.MapInboundClaims = false;
+        options.TokenValidationParameters.NameClaimType = JwtRegisteredClaimNames.Name;
+        options.TokenValidationParameters.RoleClaimType = ClaimTypes.Role;
+        options.Scope.Add(OpenIdConnectScope.OpenIdProfile);
+    }
+
     private static void HandleRemoteFailure(OpenIdConnectOptions options, string pathBase)
     {
         options.Events.OnRemoteFailure = context =>
@@ -62,11 +75,13 @@ public static class OidcAuthentication
 
             if ((bool)context.Failure?.Message.Contains("Offline tokens", StringComparison.OrdinalIgnoreCase)!)
             {
-                // todo estudar exclusão dos cookies e o momento
+                // todo
+                // estudar exclusão dos cookies e o momento
                 //context.Response.Cookies.Delete(".AspNetCore.Cookies");
-                // deslogar
-                //await context.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-                //await context.HttpContext.SignOutAsync("MicrosoftOidc", new AuthenticationProperties { RedirectUri = pathBase });
+                // deslogar com ou sem post
+                // criar pagina para erro 405
+                // await context.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                // await context.HttpContext.SignOutAsync("MicrosoftOidc", new AuthenticationProperties { RedirectUri = pathBase });
                 // redirecionar
 
                 var message = Uri.EscapeDataString("Usuário ou cliente sem permissão para acesso offline");
@@ -171,21 +186,5 @@ public static class OidcAuthentication
 
             return Task.CompletedTask;
         };
-    }
-
-    private static void ConfigureIdentityProvider(IHostApplicationBuilder builder, OpenIdConnectOptions options, string? authServerUrl, string? realm, string? resource, string pathBase)
-    {
-        options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-        options.Authority = $"{authServerUrl}realms/{realm}";
-        options.ClientId = resource;
-        options.ResponseType = OpenIdConnectResponseType.Code;
-        options.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
-        options.CallbackPath = new PathString($"{pathBase}/signin-oidc");
-        options.SignedOutCallbackPath = new PathString($"{pathBase}/signout-callback-oidc");
-        options.RemoteSignOutPath = new PathString($"{pathBase}/signout-oidc");
-        options.MapInboundClaims = false;
-        options.TokenValidationParameters.NameClaimType = JwtRegisteredClaimNames.Name;
-        options.TokenValidationParameters.RoleClaimType = ClaimTypes.Role;
-        options.Scope.Add(OpenIdConnectScope.OpenIdProfile);
     }
 }

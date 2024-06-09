@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 
 namespace APIAuthentication.Web.Components.Authentication;
 
@@ -13,7 +14,7 @@ public static class LoginLogoutEndpoint
             TypedResults.Challenge(GetAuthProperties(context))).AllowAnonymous();
 
         group.MapPost("/logout", (HttpContext context) =>
-            TypedResults.SignOut(GetAuthProperties(context), [CookieAuthenticationDefaults.AuthenticationScheme, "MicrosoftOidc"]));
+            TypedResults.SignOut(GetAuthProperties(context), [CookieAuthenticationDefaults.AuthenticationScheme, OpenIdConnectDefaults.AuthenticationScheme]));
 
         return group;
     }
