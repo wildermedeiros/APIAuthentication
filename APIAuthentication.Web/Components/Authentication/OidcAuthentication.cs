@@ -58,6 +58,7 @@ public static class OidcAuthentication
         options.CallbackPath = new PathString($"{pathBase}/signin-oidc");
         options.SignedOutCallbackPath = new PathString($"{pathBase}/signout-callback-oidc");
         options.RemoteSignOutPath = new PathString($"{pathBase}/signout-oidc");
+        options.SignedOutRedirectUri = pathBase;
         options.Scope.Add(OpenIdConnectScope.OpenIdProfile);
         options.Scope.Add(OpenIdConnectScope.OfflineAccess);
         options.GetClaimsFromUserInfoEndpoint = true;
