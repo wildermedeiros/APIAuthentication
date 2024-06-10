@@ -42,6 +42,7 @@ public static class OidcAuthentication
         });
 
         //services.ConfigureCookieOidcRefresh(CookieAuthenticationDefaults.AuthenticationScheme, OpenIdConnectDefaults.AuthenticationScheme);
+        services.AddTransient<IClaimsTransformation, CustomClaimsTransformation>();
         services.AddCascadingAuthenticationState();
 
         return services;
