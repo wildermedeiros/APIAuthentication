@@ -1,6 +1,4 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace APIAuthentication.Web.Components.Authentication;
 
@@ -13,11 +11,6 @@ internal static partial class CookieOidcServiceCollectionExtensions
         {
             cookieOptions.Events.OnValidatePrincipal = context =>
                 refresher.ValidateOrRefreshCookieAsync(context, oidcScheme);
-        });
-        services.AddOptions<OpenIdConnectOptions>(oidcScheme).Configure(oidcOptions =>
-        {
-            oidcOptions.Scope.Add(OpenIdConnectScope.OfflineAccess);
-            oidcOptions.SaveTokens = true;
         });
         return services;
     }

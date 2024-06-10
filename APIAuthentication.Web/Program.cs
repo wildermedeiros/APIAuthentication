@@ -1,13 +1,13 @@
 using APIAuthentication.Web;
 using APIAuthentication.Web.Components;
 using APIAuthentication.Web.Components.Authentication;
+using Microsoft.IdentityModel.JsonWebTokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add service defaults & Aspire components.
 builder.AddServiceDefaults();
 builder.AddRedisOutputCache("cache");
-
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
