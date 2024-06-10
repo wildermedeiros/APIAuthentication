@@ -1,9 +1,14 @@
 using APIAuthentication.Web;
 using APIAuthentication.Web.Components;
 using APIAuthentication.Web.Components.Authentication;
-using Microsoft.IdentityModel.JsonWebTokens;
+using Serilog;
+using Serilog.Sinks.SystemConsole.Themes;
 
 var builder = WebApplication.CreateBuilder(args);
+
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Async(wt => wt.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}", theme: AnsiConsoleTheme.Code))
+    .CreateLogger();
 
 // Add service defaults & Aspire components.
 builder.AddServiceDefaults();

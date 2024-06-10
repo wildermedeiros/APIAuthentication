@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using Serilog;
 using System.Diagnostics;
-using System.Security.Claims;
 
 namespace APIAuthentication.Web.Components.Authentication;
 
@@ -62,12 +62,21 @@ public static class OidcAuthentication
         options.SignedOutRedirectUri = pathBase;
         options.Scope.Add(OpenIdConnectScope.OpenIdProfile);
         options.Scope.Add(OpenIdConnectScope.OfflineAccess);
+        options.Scope.Add("api-auth");
+        options.Scope.Add("roles");
         options.GetClaimsFromUserInfoEndpoint = true;
-        options.ClaimActions.DeleteClaims("auth_time", "jti", "sub", "typ", "session_state", "sid"); // delete from identity unnecessary claims
-        options.ClaimActions.Remove("aud"); // remove filter to see audience on identity
-        options.ClaimActions.MapUniqueJsonKey("resource_access", "resource_access"); // role string from keycloak
+        options.ClaimActions.DeleteClaims("auth_time", "jti", "sub", "typ", "session_state", "sid");
+        options.ClaimActions.Remove("aud");
+        options.ClaimActions.MapUniqueJsonKey("resource_access", "resource_access");
         options.TokenValidationParameters.NameClaimType = JwtRegisteredClaimNames.Name;
         options.TokenValidationParameters.RoleClaimType = "role";
+
+        options.Events.OnTokenValidated = context =>
+        {
+            var token = context.TokenEndpointResponse!.AccessToken;
+            Log.Information(token);
+            return Task.CompletedTask;
+        };
     }
 
     private static void ForceHttpsOnRedirectToLogin(OpenIdConnectOptions options, int httpsPort)

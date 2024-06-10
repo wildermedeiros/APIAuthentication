@@ -11,13 +11,12 @@ public class CustomClaimsTransformation : IClaimsTransformation
     {
         var claimsIdentity = new ClaimsIdentity(principal.Identity);
         var resourceAccessValues = claimsIdentity.Claims.FirstOrDefault(c => c.Type == $"resource_access")?.Value;
-        //var resource = claimsIdentity.Claims.FirstOrDefault(c => c.Type == "aud")?.Value;
-        var resource = "wasm";
+        var resource = claimsIdentity.Claims.FirstOrDefault(c => c.Type == "aud")?.Value;
 
         if (string.IsNullOrEmpty(resourceAccessValues)) return Task.FromResult(principal);
 
         using var resourceAccess = JsonDocument.Parse(resourceAccessValues);
-        bool containsResourceElement = resourceAccess.RootElement.TryGetProperty(resource, out var resourceValues);
+        bool containsResourceElement = resourceAccess.RootElement.TryGetProperty(resource!, out var resourceValues);
 
         if (!containsResourceElement)
             throw new InvalidOperationException($"Verify if the resource_access has a {resource} property");

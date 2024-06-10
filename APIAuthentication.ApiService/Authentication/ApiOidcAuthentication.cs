@@ -1,4 +1,6 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.JsonWebTokens;
+using Microsoft.IdentityModel.Tokens;
 
 namespace ApiAuthentication.ApiService.Authentication;
 
@@ -11,22 +13,28 @@ public static class ApiOidcAuthentication
         var realm = keycloakConfig["realm"];
         var resource = keycloakConfig["resource"];
 
-        services.AddAuthentication().AddJwtBearer("Bearer", jwtOptions =>
-        {
-            jwtOptions.Authority = $"{authServerUrl}realms/{realm}";
-            jwtOptions.Audience = "account";
-            jwtOptions.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
-            jwtOptions.SaveToken = true;
+        JsonWebTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
-            jwtOptions.TokenValidationParameters = new TokenValidationParameters
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
             {
-                ValidateIssuer = true,
-                ValidIssuer = $"{authServerUrl}realms/{realm}",
-                ValidateAudience = true,
-                ValidAudience = "account",
-                ValidateLifetime = true
-            };
-        });
+                options.Authority = $"{authServerUrl}realms/{realm}";
+                options.Audience = resource;
+                options.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
+                options.SaveToken = true;
+
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidIssuer = $"{authServerUrl}realms/{realm}",
+                    ValidateAudience = true,
+                    ValidAudience = resource,
+                    ValidateLifetime = true,
+                    ValidTypes = ["JWT"],
+                    NameClaimType = "name",
+                    RoleClaimType = "role"
+                };
+            });
 
         return services;
     }
