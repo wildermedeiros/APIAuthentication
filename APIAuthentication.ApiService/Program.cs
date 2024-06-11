@@ -21,6 +21,7 @@ builder.Services.AddAuthorizationBuilder()
     {
         policy.RequireAuthenticatedUser()
               .RequireClaim("fullaccess", "true");
+        //.AddRequirements(new Requirement)
     });
 
 builder.Services.AddTransient<IClaimsTransformation, CustomClaimsTransformation>();
@@ -41,7 +42,7 @@ app.UseSwaggerUI();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapGet("/foo", () =>
+app.MapGet("/foo", [AuthExampleHandler] () =>
 {
     return "olá";
 }).RequireAuthorization("IsAdmin", "HasFullAccess");
