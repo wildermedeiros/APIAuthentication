@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\APIAuthentication.Authorization\APIAuthentication.Authorization.csproj" />
     <ProjectReference Include="..\APIAuthentication.ServiceDefaults\APIAuthentication.ServiceDefaults.csproj" />
   </ItemGroup>
 

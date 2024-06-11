@@ -1,3 +1,4 @@
+using APIAuthentication.Authorization;
 using APIAuthentication.Web;
 using APIAuthentication.Web.Components;
 using APIAuthentication.Web.Components.Authentication;
@@ -19,7 +20,8 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddOidcAuthentication(builder);
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("admin", AuthorizationPolicies.IsAdmin());
 
 builder.Services.AddScoped<ApiClient>();
 builder.Services.AddHttpContextAccessor();

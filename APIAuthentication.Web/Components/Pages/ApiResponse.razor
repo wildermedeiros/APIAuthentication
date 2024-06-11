@@ -1,7 +1,12 @@
 ﻿@page "/api-response"
+@using APIAuthentication.Authorization
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
 
+@inject IAuthorizationService AuthorizationService
 @inject ApiClient ApiClient
 @inject NavigationManager Navigation
+@attribute [Authorize(Policy = "admin")]
 
 <PageTitle>Api Response</PageTitle>
 
@@ -16,13 +21,28 @@
 else
 {
     <p>@response</p>
+    <p>@isAuth</p>
 }
 
 @code {
     string? response;
+    bool isAuth = false;
+
+    [CascadingParameter]
+    Task<AuthenticationState>? AuthState { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
+        if (AuthState is null) { return; }
+
+        var authState = await AuthState;
+        var user = authState.User;
+
         response = await ApiClient.GetString();
+
+        if ((await AuthorizationService.AuthorizeAsync(user, AuthorizationPolicies.IsAdmin())).Succeeded)
+        {
+            isAuth = true;
+        }
     }
 }

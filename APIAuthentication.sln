@@ -12,6 +12,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "APIAuthentication.Web", "AP
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "APIAuthentication.Tests", "APIAuthentication.Tests\APIAuthentication.Tests.csproj", "{22F02A84-42A8-4727-B07F-6325CC833243}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "APIAuthentication.Authorization", "APIAuthentication.Authorization\APIAuthentication.Authorization.csproj", "{DA58AA01-FB8D-4DDD-99AA-D6F3FE46D5D8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -38,6 +40,10 @@ Global
 		{22F02A84-42A8-4727-B07F-6325CC833243}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{22F02A84-42A8-4727-B07F-6325CC833243}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{22F02A84-42A8-4727-B07F-6325CC833243}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DA58AA01-FB8D-4DDD-99AA-D6F3FE46D5D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA58AA01-FB8D-4DDD-99AA-D6F3FE46D5D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA58AA01-FB8D-4DDD-99AA-D6F3FE46D5D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA58AA01-FB8D-4DDD-99AA-D6F3FE46D5D8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -65,7 +65,7 @@ public static class OidcAuthentication
         options.Scope.Add("api-auth");
         options.Scope.Add("roles");
         options.GetClaimsFromUserInfoEndpoint = true;
-        options.ClaimActions.DeleteClaims("auth_time", "jti", "sub", "typ", "session_state", "sid");
+        options.ClaimActions.DeleteClaims("auth_time", "jti", "typ", "session_state", "sid", "preferred_username", "given_name", "family_name");
         options.ClaimActions.Remove("aud");
         options.ClaimActions.MapUniqueJsonKey("resource_access", "resource_access");
         options.TokenValidationParameters.NameClaimType = JwtRegisteredClaimNames.Name;

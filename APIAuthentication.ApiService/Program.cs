@@ -1,5 +1,6 @@
 using ApiAuthentication.ApiService.Authentication;
 using APIAuthentication.ApiService.Authentication;
+using APIAuthentication.Authorization;
 using Microsoft.AspNetCore.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,10 +16,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddApiOidcAuthentication(builder);
 builder.Services.AddAuthorizationBuilder()
-    .AddPolicy("admin", policy =>
-        policy.RequireRole("admin"))
-    .AddPolicy("seller", policy =>
-        policy.RequireRole("seller"));
+    .AddPolicy("admin", AuthorizationPolicies.IsAdmin());
 
 builder.Services.AddTransient<IClaimsTransformation, CustomClaimsTransformation>();
 
