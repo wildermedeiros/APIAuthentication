@@ -7,7 +7,6 @@ namespace APIAuthentication.Web;
 
 public class ApiClient(
     IHttpContextAccessor httpContextAccessor,
-    IHttpClientFactory httpClientFactory,
     IUserTokenManagementService tokenManagementService,
     AuthenticationStateProvider authenticationStateProvider)
 {
@@ -19,8 +18,6 @@ public class ApiClient(
         .WithHeader("Content-Type", "application/json")
         .WithSettings(x => x.JsonSerializer = new Flurl.Http.Newtonsoft.NewtonsoftJsonSerializer());
 
-    //private readonly HttpClient client = httpClientFactory.CreateClient("apiClient");
-
     public async Task<string> GetString()
     {
         var state = await authenticationStateProvider.GetAuthenticationStateAsync();
@@ -29,6 +26,5 @@ public class ApiClient(
 
         // todo retornar um response´para validar e não quebrar a aplicação
         return await client.Request().AppendPathSegment("foo").WithOAuthBearerToken(token.AccessToken!).GetStringAsync();
-        //return await client.GetStringAsync("foo");
     }
 }

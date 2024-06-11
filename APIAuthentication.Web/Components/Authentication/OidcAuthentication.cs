@@ -8,7 +8,11 @@ using System.Diagnostics;
 using Duende.AccessTokenManagement.OpenIdConnect;
 
 namespace APIAuthentication.Web.Components.Authentication;
-
+// todo
+// reestruturar o script
+// separar os eventos
+// estruturar log na classe Program.cs
+// observar se o jti muda após renovação do token de acesso
 public static class OidcAuthentication
 {
     public static IServiceCollection AddOidcAuthentication(this IServiceCollection services, IHostApplicationBuilder builder)
@@ -33,8 +37,8 @@ public static class OidcAuthentication
         .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
         {
             options.AccessDeniedPath = new PathString($"{pathBase}/403");
-            //options.Cookie.Name = "__Server-blazor";
-            //options.Cookie.SameSite = SameSiteMode.Lax;
+            options.Cookie.Name = "__Host-blazor";
+            options.Cookie.SameSite = SameSiteMode.Lax;
 
             options.EventsType = typeof(CookieEvents);
         })
@@ -49,13 +53,11 @@ public static class OidcAuthentication
 
         services.AddOpenIdConnectAccessTokenManagement()
             .AddBlazorServerAccessTokenManagement<ServerSideTokenStore>();
-
         services.AddTransient<CookieEvents>();
         services.AddTransient<OidcEvents>();
-
-        //services.ConfigureCookieOidcRefresh(CookieAuthenticationDefaults.AuthenticationScheme, OpenIdConnectDefaults.AuthenticationScheme);
         services.AddTransient<IClaimsTransformation, CustomClaimsTransformation>();
         services.AddCascadingAuthenticationState();
+        //services.ConfigureCookieOidcRefresh(CookieAuthenticationDefaults.AuthenticationScheme, OpenIdConnectDefaults.AuthenticationScheme);
 
         return services;
     }
@@ -78,7 +80,7 @@ public static class OidcAuthentication
         options.Scope.Add("roles");
         options.Scope.Add("api.fullaccess");
         options.GetClaimsFromUserInfoEndpoint = true;
-        options.ClaimActions.DeleteClaims("auth_time", "jti", "typ", "session_state", "sid", "preferred_username", "given_name", "family_name");
+        options.ClaimActions.DeleteClaims("auth_time", "typ", "session_state", "sid", "preferred_username", "given_name", "family_name");
         options.ClaimActions.Remove("aud");
         options.ClaimActions.MapUniqueJsonKey("resource_access", "resource_access");
         options.TokenValidationParameters.NameClaimType = JwtRegisteredClaimNames.Name;
