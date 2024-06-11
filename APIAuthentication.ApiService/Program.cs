@@ -16,7 +16,12 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddApiOidcAuthentication(builder);
 builder.Services.AddAuthorizationBuilder()
-    .AddPolicy("admin", AuthorizationPolicies.IsAdmin());
+    .AddPolicy("IsAdmin", AuthorizationPolicies.IsAdmin())
+    .AddPolicy("HasFullAccess", policy =>
+    {
+        policy.RequireAuthenticatedUser()
+              .RequireClaim("fullaccess", "true");
+    });
 
 builder.Services.AddTransient<IClaimsTransformation, CustomClaimsTransformation>();
 
@@ -39,6 +44,6 @@ app.UseAuthorization();
 app.MapGet("/foo", () =>
 {
     return "olá";
-}).RequireAuthorization("admin");
+}).RequireAuthorization("IsAdmin", "HasFullAccess");
 
 app.Run();

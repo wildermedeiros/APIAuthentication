@@ -62,8 +62,8 @@ public static class OidcAuthentication
         options.SignedOutRedirectUri = pathBase;
         options.Scope.Add(OpenIdConnectScope.OpenIdProfile);
         options.Scope.Add(OpenIdConnectScope.OfflineAccess);
-        options.Scope.Add("api-auth");
         options.Scope.Add("roles");
+        options.Scope.Add("api.fullaccess");
         options.GetClaimsFromUserInfoEndpoint = true;
         options.ClaimActions.DeleteClaims("auth_time", "jti", "typ", "session_state", "sid", "preferred_username", "given_name", "family_name");
         options.ClaimActions.Remove("aud");
