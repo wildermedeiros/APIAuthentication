@@ -1,7 +1,6 @@
 using ApiAuthentication.ApiService.Authentication;
 using APIAuthentication.ApiService.Authentication;
 using APIAuthentication.Authorization;
-using Microsoft.AspNetCore.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,10 +20,12 @@ builder.Services.AddAuthorizationBuilder()
     {
         policy.RequireAuthenticatedUser()
               .RequireClaim("fullaccess", "true");
-        //.AddRequirements(new Requirement)
+    })
+    .AddPolicy("ExampleRequirement", policy =>
+    {
+        policy.RequireAuthenticatedUser()
+              .AddRequirements(new ExampleRequirement());
     });
-
-builder.Services.AddTransient<IClaimsTransformation, CustomClaimsTransformation>();
 
 var app = builder.Build();
 var pathBase = builder.Configuration.GetValue<string>("PathBase");
@@ -42,9 +43,9 @@ app.UseSwaggerUI();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapGet("/foo", [AuthExampleHandler] () =>
+app.MapGet("/foo", () =>
 {
     return "olá";
-}).RequireAuthorization("IsAdmin", "HasFullAccess");
+}).RequireAuthorization("IsAdmin", "HasFullAccess", "ExampleRequirement");
 
 app.Run();

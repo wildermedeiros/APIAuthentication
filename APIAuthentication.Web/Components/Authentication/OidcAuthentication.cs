@@ -1,10 +1,11 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using APIAuthentication.Web.Components.Authentication.Plumbing;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-using Serilog;
 using System.Diagnostics;
+using Duende.AccessTokenManagement.OpenIdConnect;
 
 namespace APIAuthentication.Web.Components.Authentication;
 
@@ -13,7 +14,6 @@ public static class OidcAuthentication
     public static IServiceCollection AddOidcAuthentication(this IServiceCollection services, IHostApplicationBuilder builder)
     {
         const int https = 443;
-
         var configuration = builder.Configuration;
         var keycloakConfig = configuration.GetRequiredSection("Keycloak") ?? throw new InvalidOperationException("Keycloak not configured!");
         var authServerUrl = keycloakConfig["auth-server-url"];
@@ -27,10 +27,16 @@ public static class OidcAuthentication
         {
             options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
             options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
+            options.DefaultSignInScheme = OpenIdConnectDefaults.AuthenticationScheme;
+            options.DefaultSignOutScheme = OpenIdConnectDefaults.AuthenticationScheme;
         })
         .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
         {
             options.AccessDeniedPath = new PathString($"{pathBase}/403");
+            //options.Cookie.Name = "__Server-blazor";
+            //options.Cookie.SameSite = SameSiteMode.Lax;
+
+            options.EventsType = typeof(CookieEvents);
         })
         .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, options =>
         {
@@ -40,6 +46,12 @@ public static class OidcAuthentication
             ForceHttpsOnLogOutCallback(options, https);
             HandleRemoteFailure(options, pathBase);
         });
+
+        services.AddOpenIdConnectAccessTokenManagement()
+            .AddBlazorServerAccessTokenManagement<ServerSideTokenStore>();
+
+        services.AddTransient<CookieEvents>();
+        services.AddTransient<OidcEvents>();
 
         //services.ConfigureCookieOidcRefresh(CookieAuthenticationDefaults.AuthenticationScheme, OpenIdConnectDefaults.AuthenticationScheme);
         services.AddTransient<IClaimsTransformation, CustomClaimsTransformation>();
@@ -54,6 +66,7 @@ public static class OidcAuthentication
         options.Authority = $"{authServerUrl}realms/{realm}";
         options.ClientId = resource;
         options.ResponseType = OpenIdConnectResponseType.Code;
+        //options.ResponseMode = "query";
         options.SaveTokens = true;
         options.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
         options.CallbackPath = new PathString($"{pathBase}/signin-oidc");
@@ -70,13 +83,7 @@ public static class OidcAuthentication
         options.ClaimActions.MapUniqueJsonKey("resource_access", "resource_access");
         options.TokenValidationParameters.NameClaimType = JwtRegisteredClaimNames.Name;
         options.TokenValidationParameters.RoleClaimType = "role";
-
-        options.Events.OnTokenValidated = context =>
-        {
-            var token = context.TokenEndpointResponse!.AccessToken;
-            Log.Information(token);
-            return Task.CompletedTask;
-        };
+        options.EventsType = typeof(OidcEvents);
     }
 
     private static void ForceHttpsOnRedirectToLogin(OpenIdConnectOptions options, int httpsPort)

@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using APIAuthentication.ApiService.Authentication;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 
@@ -35,6 +38,9 @@ public static class ApiOidcAuthentication
                     RoleClaimType = "role"
                 };
             });
+
+        builder.Services.AddTransient<IClaimsTransformation, CustomClaimsTransformation>();
+        builder.Services.AddScoped<IAuthorizationHandler, ExampleHandler>();
 
         return services;
     }

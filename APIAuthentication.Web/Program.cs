@@ -10,6 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Async(wt => wt.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}", theme: AnsiConsoleTheme.Code))
     .CreateLogger();
+    //.CreateBootstrapLogger();
 
 // Add service defaults & Aspire components.
 builder.AddServiceDefaults();
@@ -27,6 +28,13 @@ builder.Services.AddScoped<ApiClient>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers();
 
+builder.Services.AddDistributedMemoryCache();
+
+//builder.Services.AddHttpClient("apiClient", client =>
+//{
+//    client.BaseAddress = new Uri("https://localhost:7573");
+//}).AddUserAccessTokenHandler();
+
 var app = builder.Build();
 var pathBase = builder.Configuration.GetValue<string>("PathBase");
 
@@ -40,6 +48,8 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+//app.UseSerilogRequestLogging();
 
 app.UseStaticFiles();
 
