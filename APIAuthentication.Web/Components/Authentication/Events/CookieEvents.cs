@@ -5,7 +5,7 @@ using Duende.AccessTokenManagement.OpenIdConnect;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
-namespace APIAuthentication.Web.Components.Authentication.Plumbing;
+namespace APIAuthentication.Web.Components.Authentication.Events;
 
 public class CookieEvents : CookieAuthenticationEvents
 {
@@ -15,7 +15,7 @@ public class CookieEvents : CookieAuthenticationEvents
     {
         _store = store;
     }
-    
+
     public override async Task ValidatePrincipal(CookieValidatePrincipalContext context)
     {
         var token = await _store.GetTokenAsync(context.Principal!);
@@ -30,7 +30,7 @@ public class CookieEvents : CookieAuthenticationEvents
     public override async Task SigningOut(CookieSigningOutContext context)
     {
         await context.HttpContext.RevokeRefreshTokenAsync();
-        
+
         await base.SigningOut(context);
     }
 }

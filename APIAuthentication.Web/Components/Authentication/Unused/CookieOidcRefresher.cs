@@ -11,7 +11,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text.Json;
 
-namespace APIAuthentication.Web.Components.Authentication;
+namespace APIAuthentication.Web.Components.Authentication.Unused;
 
 // https://github.com/dotnet/aspnetcore/issues/8175
 internal sealed class CookieOidcRefresher(IOptionsMonitor<OpenIdConnectOptions> oidcOptionsMonitor)

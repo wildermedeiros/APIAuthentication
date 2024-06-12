@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 
-namespace APIAuthentication.Web.Components.Authentication;
+namespace APIAuthentication.Web.Components.Authentication.Unused;
 
 internal static partial class CookieOidcServiceCollectionExtensions
 {

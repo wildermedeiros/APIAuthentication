@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Security.Claims;
 using System.Text.Json;
 
-namespace APIAuthentication.Web.Components.Authentication;
+namespace APIAuthentication.Web.Components.Authentication.Management;
 
 public class CustomClaimsTransformation : IClaimsTransformation
 {

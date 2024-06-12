@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 
-namespace APIAuthentication.Web.Components.Authentication;
+namespace APIAuthentication.Web.Components.Authentication.Endpoints;
 
 public static class LoginLogoutEndpoint
 {

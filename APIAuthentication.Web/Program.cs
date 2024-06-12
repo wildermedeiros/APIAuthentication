@@ -1,7 +1,8 @@
 using APIAuthentication.Authorization;
 using APIAuthentication.Web;
 using APIAuthentication.Web.Components;
-using APIAuthentication.Web.Components.Authentication;
+using APIAuthentication.Web.Components.Authentication.Endpoints;
+using APIAuthentication.Web.Components.Authentication.Management;
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
 
@@ -24,13 +25,13 @@ builder.Services.AddOidcAuthentication(builder);
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy("admin", AuthorizationPolicies.IsAdmin());
 
-builder.Services.AddScoped<ApiClient>();
+builder.Services.AddTransient<ApiClient>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers();
 
 builder.Services.AddDistributedMemoryCache();
 
-//builder.Services.AddHttpClient("apiClient", client =>
+//builder.Services.AddHttpClient<ApiClient>(client =>
 //{
 //    client.BaseAddress = new Uri("https://localhost:7573");
 //}).AddUserAccessTokenHandler();

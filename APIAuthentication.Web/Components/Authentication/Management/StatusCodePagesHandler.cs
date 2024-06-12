@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using System.Net;
 
-namespace APIAuthentication.Web.Components.Authentication;
+namespace APIAuthentication.Web.Components.Authentication.Management;
 
 public static class StatusCodePagesHandler
 {

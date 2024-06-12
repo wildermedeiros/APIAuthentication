@@ -4,7 +4,7 @@
 using Duende.AccessTokenManagement.OpenIdConnect;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 
-namespace APIAuthentication.Web.Components.Authentication.Plumbing;
+namespace APIAuthentication.Web.Components.Authentication.Events;
 
 public class OidcEvents : OpenIdConnectEvents
 {
@@ -17,7 +17,7 @@ public class OidcEvents : OpenIdConnectEvents
 
     public override async Task TokenValidated(TokenValidatedContext context)
     {
-        var exp = DateTimeOffset.UtcNow.AddSeconds(Double.Parse(context.TokenEndpointResponse!.ExpiresIn));
+        var exp = DateTimeOffset.UtcNow.AddSeconds(double.Parse(context.TokenEndpointResponse!.ExpiresIn));
 
         await _store.StoreTokenAsync(context.Principal!, new UserToken
         {

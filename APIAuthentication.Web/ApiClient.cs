@@ -24,7 +24,8 @@ public class ApiClient(
         var token = await tokenManagementService.GetAccessTokenAsync(state.User);
         Log.Information(token.AccessToken!);
 
-        // todo retornar um response´para validar e não quebrar a aplicação
+        // todo
+        // retornar um response para validar e não quebrar a aplicação
         return await client.Request().AppendPathSegment("foo").WithOAuthBearerToken(token.AccessToken!).GetStringAsync();
     }
 }
