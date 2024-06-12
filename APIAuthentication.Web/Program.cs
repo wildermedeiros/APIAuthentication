@@ -1,7 +1,6 @@
 using APIAuthentication.Authorization;
 using APIAuthentication.Web;
 using APIAuthentication.Web.Components;
-using APIAuthentication.Web.Components.Authentication.Endpoints;
 using APIAuthentication.Web.Components.Authentication.Management;
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
@@ -11,7 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Async(wt => wt.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}", theme: AnsiConsoleTheme.Code))
     .CreateLogger();
-    //.CreateBootstrapLogger();
+//.CreateBootstrapLogger();
 
 // Add service defaults & Aspire components.
 builder.AddServiceDefaults();
@@ -27,10 +26,7 @@ builder.Services.AddAuthorizationBuilder()
     .AddPolicy("admin", AuthorizationPolicies.IsAdmin());
 
 builder.Services.AddTransient<ApiClient>();
-builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers();
-
-//builder.Services.AddDistributedMemoryCache();
 
 //builder.Services.AddHttpClient("apiClient", client =>
 //{
@@ -55,7 +51,11 @@ app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 
+app.UseRouting();
+
 app.UseAuthorization();
+
+app.MapControllers();
 
 app.UseAntiforgery();
 
@@ -66,7 +66,5 @@ app.MapRazorComponents<App>()
 app.MapDefaultEndpoints();
 
 app.UseStatusCodePagesHandler(pathBase!);
-
-app.MapLoginAndLogout().ExcludeFromDescription();
 
 app.Run();

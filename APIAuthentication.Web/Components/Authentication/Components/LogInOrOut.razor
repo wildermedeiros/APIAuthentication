@@ -2,6 +2,17 @@
 @inject NavigationManager NavigationManager
 
 <AuthorizeView>
+    <NotAuthorized>
+        <div class="nav-item px-3">
+            <form action="authentication/login" method="get">
+                <input type="hidden" name="returnUrl" value="@currentUrl" />
+                <AntiforgeryToken />
+                <button type="submit" class="nav-link">
+                    <span class="bi bi-person-badge-nav-menu" aria-hidden="true"></span> Login
+                </button>
+            </form>
+        </div>
+    </NotAuthorized>
     <Authorized>
         <div class="nav-item px-3">
             <form action="authentication/logout" method="post">
@@ -12,17 +23,6 @@
             </form>
         </div>
     </Authorized>
-    <NotAuthorized>
-        <div class="nav-item px-3">
-            <form action="authentication/login" method="get">
-                <input type="hidden" name="ReturnUrl" value="@currentUrl" />
-                <AntiforgeryToken />
-                <button type="submit" class="nav-link">
-                    <span class="bi bi-person-badge-nav-menu" aria-hidden="true"></span> Login
-                </button>
-            </form>
-        </div>
-    </NotAuthorized>
 </AuthorizeView>
 
 @code {

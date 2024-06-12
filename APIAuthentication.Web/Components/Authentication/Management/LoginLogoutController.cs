@@ -1,22 +1,30 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using IdentityModel.Client;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Net.Http;
 
-namespace APIAuthentication.Web.Components.Authentication.Endpoints;
+namespace APIAuthentication.Web.Components.Authentication.Management;
 
-public static class LoginLogoutEndpoint
+[Route("/authentication")]
+public class LoginLogoutController : ControllerBase
 {
-    public static IEndpointConventionBuilder MapLoginAndLogout(this IEndpointRouteBuilder app)
+    [AllowAnonymous]
+    [HttpGet("login")]
+    public IActionResult LogIn(string? returnUrl)
     {
-        var group = app.MapGroup("/authentication");
+        var properties = GetAuthProperties(HttpContext, returnUrl);
 
-        group.MapGet("/login", (HttpContext context, string? returnUrl) =>
-            TypedResults.Challenge(GetAuthProperties(context, returnUrl))).AllowAnonymous();
+        return Challenge(properties);
+    }
 
-        group.MapPost("/logout", (HttpContext context) =>
-            TypedResults.SignOut(null, [CookieAuthenticationDefaults.AuthenticationScheme, OpenIdConnectDefaults.AuthenticationScheme]));
-
-        return group;
+    [Authorize]
+    [HttpPost("logout")]
+    public IActionResult LogOut()
+    {
+        return SignOut(CookieAuthenticationDefaults.AuthenticationScheme, OpenIdConnectDefaults.AuthenticationScheme);
     }
 
     private static AuthenticationProperties GetAuthProperties(HttpContext context, string? returnUrl)
