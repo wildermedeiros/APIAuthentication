@@ -7,10 +7,8 @@ using Duende.AccessTokenManagement.OpenIdConnect;
 
 namespace APIAuthentication.Web.Components.Authentication.Management;
 
-/// <summary>
-/// Simplified implementation of a server-side token store.
-/// Probably want something more robust IRL
-/// </summary>
+// todo 
+// usar uma solução distribuida
 public class ServerSideTokenStore : IUserTokenStore
 {
     private readonly ConcurrentDictionary<string, UserToken> _tokens = new();

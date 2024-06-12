@@ -1,7 +1,7 @@
 using APIAuthentication.Authorization;
-using APIAuthentication.Web;
 using APIAuthentication.Web.Components;
 using APIAuthentication.Web.Components.Authentication.Management;
+using APIAuthentication.Web.Services;
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
 
@@ -32,6 +32,11 @@ builder.Services.AddControllers();
 //{
 //    client.BaseAddress = new Uri("https://localhost:7573");
 //}).AddUserAccessTokenHandler();
+
+//builder.Services.AddHttpClient("idp", client =>
+//{
+//    client.BaseAddress = new Uri("http://localhost:8080/realms/wilder");
+//});
 
 var app = builder.Build();
 var pathBase = builder.Configuration.GetValue<string>("PathBase");

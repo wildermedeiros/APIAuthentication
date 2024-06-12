@@ -1,14 +1,13 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using APIAuthentication.Web.Components.Authentication.Events;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System.Diagnostics;
-using Duende.AccessTokenManagement.OpenIdConnect;
-using APIAuthentication.Web.Components.Authentication.Events;
-using APIAuthentication.Web.Components.Authentication.Unused;
 
 namespace APIAuthentication.Web.Components.Authentication.Management;
+
 // todo
 // reestruturar o script
 // separar os eventos
