@@ -16,6 +16,7 @@ Log.Logger = new LoggerConfiguration()
 // Add service defaults & Aspire components.
 builder.AddServiceDefaults();
 builder.AddRedisOutputCache("cache");
+builder.AddRedisDistributedCache("cache");
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
@@ -29,9 +30,9 @@ builder.Services.AddTransient<ApiClient>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers();
 
-builder.Services.AddDistributedMemoryCache();
+//builder.Services.AddDistributedMemoryCache();
 
-//builder.Services.AddHttpClient<ApiClient>(client =>
+//builder.Services.AddHttpClient("apiClient", client =>
 //{
 //    client.BaseAddress = new Uri("https://localhost:7573");
 //}).AddUserAccessTokenHandler();

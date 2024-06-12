@@ -7,18 +7,13 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace APIAuthentication.Web.Components.Authentication.Events;
 
-public class CookieEvents : CookieAuthenticationEvents
+public class CookieEvents(IUserTokenStore store) : CookieAuthenticationEvents
 {
-    private readonly IUserTokenStore _store;
-
-    public CookieEvents(IUserTokenStore store)
-    {
-        _store = store;
-    }
+    private readonly IUserTokenStore store = store;
 
     public override async Task ValidatePrincipal(CookieValidatePrincipalContext context)
     {
-        var token = await _store.GetTokenAsync(context.Principal!);
+        var token = await store.GetTokenAsync(context.Principal!);
         if (token.IsError)
         {
             context.RejectPrincipal();

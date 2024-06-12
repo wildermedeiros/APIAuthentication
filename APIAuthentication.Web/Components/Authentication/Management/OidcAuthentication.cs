@@ -6,13 +6,13 @@ using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System.Diagnostics;
 using Duende.AccessTokenManagement.OpenIdConnect;
 using APIAuthentication.Web.Components.Authentication.Events;
+using APIAuthentication.Web.Components.Authentication.Unused;
 
 namespace APIAuthentication.Web.Components.Authentication.Management;
 // todo
 // reestruturar o script
 // separar os eventos
 // estruturar log na classe Program.cs
-// observar se o jti muda após renovação do token de acesso
 public static class OidcAuthentication
 {
     public static IServiceCollection AddOidcAuthentication(this IServiceCollection services, IHostApplicationBuilder builder)
@@ -39,7 +39,6 @@ public static class OidcAuthentication
             options.AccessDeniedPath = new PathString($"{pathBase}/403");
             options.Cookie.Name = "__Host-blazor";
             options.Cookie.SameSite = SameSiteMode.Lax;
-
             options.EventsType = typeof(CookieEvents);
         })
         .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, options =>
@@ -51,8 +50,7 @@ public static class OidcAuthentication
             HandleRemoteFailure(options, pathBase);
         });
 
-        services.AddOpenIdConnectAccessTokenManagement()
-            .AddBlazorServerAccessTokenManagement<ServerSideTokenStore>();
+        services.AddOpenIdConnectAccessTokenManagement().AddBlazorServerAccessTokenManagement<ServerSideTokenStore>();
         services.AddTransient<CookieEvents>();
         services.AddTransient<OidcEvents>();
         services.AddTransient<IClaimsTransformation, CustomClaimsTransformation>();
