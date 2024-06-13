@@ -23,8 +23,8 @@ public class ApiClient
         .WithSettings(x => x.JsonSerializer = new Flurl.Http.Newtonsoft.NewtonsoftJsonSerializer())
         .BeforeCall(async call =>
         {
-            var state = await authenticationStateProvider.GetAuthenticationStateAsync();
-            var token = await tokenManagementService.GetAccessTokenAsync(state.User);
+            var state = await this.authenticationStateProvider.GetAuthenticationStateAsync();
+            var token = await this.tokenManagementService.GetAccessTokenAsync(state.User);
             Log.Information("Token from manager: {Token}", token.AccessToken);
             call.Client.WithOAuthBearerToken(token.AccessToken);
         });

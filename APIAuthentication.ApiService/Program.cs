@@ -43,7 +43,7 @@ app.UseSwaggerUI();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapGet("/foo", () =>
+app.MapGet("/foo", [AuthExampleHandler] () =>
 {
     return "olá";
 }).RequireAuthorization("IsAdmin", "HasFullAccess", "ExampleRequirement");
